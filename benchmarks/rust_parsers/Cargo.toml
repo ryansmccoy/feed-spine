@@ -1,0 +1,17 @@
+[package]
+name = "sec_parsers"
+version = "0.1.0"
+edition = "2021"
+
+[lib]
+name = "sec_parsers"
+crate-type = ["cdylib"]
+
+[dependencies]
+pyo3 = { version = "0.21", features = ["extension-module"] }
+rayon = "1.10"
+
+[profile.release]
+opt-level = 3
+lto = true
+codegen-units = 1

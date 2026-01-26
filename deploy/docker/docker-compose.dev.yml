@@ -1,0 +1,72 @@
+# FeedSpine Minimal Development Stack
+#
+# Usage: docker compose -f docker-compose.dev.yml up -d
+#
+# Only includes essential services for local development.
+# FeedSpine runs directly on host with in-memory backends.
+
+name: feedspine-dev
+
+services:
+  # PostgreSQL - only if testing postgres storage
+  postgres:
+    image: postgres:16-alpine
+    container_name: feedspine-dev-postgres
+    environment:
+      POSTGRES_USER: feedspine
+      POSTGRES_PASSWORD: feedspine
+      POSTGRES_DB: feedspine
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_dev_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U feedspine"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - postgres
+
+  # Redis - only if testing redis cache/queue
+  redis:
+    image: redis:7-alpine
+    container_name: feedspine-dev-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    profiles:
+      - redis
+
+  # Elasticsearch - only if testing elasticsearch search
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: feedspine-dev-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - "ES_JAVA_OPTS=-Xms256m -Xmx256m"
+    ports:
+      - "9200:9200"
+    volumes:
+      - elasticsearch_dev_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    profiles:
+      - elasticsearch
+      - search
+
+volumes:
+  postgres_dev_data:
+  redis_dev_data:
+  elasticsearch_dev_data:

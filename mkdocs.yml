@@ -1,0 +1,137 @@
+site_name: FeedSpine
+site_description: Storage-agnostic, executor-agnostic feed capture framework
+site_url: https://feedspine.readthedocs.io/
+repo_url: https://github.com/ryansmccoy/feedspine
+repo_name: feedspine
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.expand
+    - navigation.top
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.code.annotate
+    - content.tabs.link
+  palette:
+    - scheme: default
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - scheme: slate
+      primary: indigo
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  icon:
+    repo: fontawesome/brands/github
+
+plugins:
+  - search
+  - mkdocstrings:
+      default_handler: python
+      handlers:
+        python:
+          paths: [src]
+          options:
+            docstring_style: google
+            docstring_section_style: spacy
+            show_source: true
+            show_root_heading: true
+            show_root_toc_entry: true
+            show_category_heading: true
+            members_order: source
+            separate_signature: true
+            show_signature_annotations: true
+            signature_crossrefs: true
+            merge_init_into_class: true
+            show_if_no_docstring: false
+            annotations_path: brief
+  - gen-files:
+      scripts:
+        - scripts/gen_ref_pages.py
+  - literate-nav:
+      nav_file: SUMMARY.md
+
+nav:
+  - Home: index.md
+  - Getting Started:
+    - Installation: getting-started/installation.md
+    - Quick Start: getting-started/quickstart.md
+  - Tutorials:
+    - Your First Feed: tutorials/first-feed.md
+  - How-To Guides:
+    - Custom Storage Backend: how-to/custom-storage.md
+    - Custom Feed Implementation: how-to/custom-feed.md
+  - Concepts:
+    - Architecture Overview: concepts/architecture.md
+    - The Layer System: concepts/layers.md
+    - Protocol Design: concepts/protocols.md
+  - Design:
+    - Overview: design/index.md
+    - Manifesto: design/manifesto.md
+    - Framework Design: design/framework-design.md
+    - Python Architecture: design/python-architecture.md
+    - Implementation Roadmap: design/implementation-roadmap.md
+  - Intelligence:
+    - Overview: intelligence/index.md
+    - Feature Roadmap: intelligence/roadmap.md
+    - Local LLM (Ollama): intelligence/llm-local.md
+    - Cloud LLM APIs: intelligence/llm-cloud.md
+  - Domains:
+    - Overview: domains/index.md
+    - SEC EDGAR:
+      - Overview: domains/sec-edgar/overview.md
+  - API Reference: reference/
+  - Contributing:
+    - Development Setup: contributing/setup.md
+    - Documentation Guide: DOCUMENTATION_GUIDE.md
+
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - pymdownx.tabbed:
+      alternate_style: true
+  - pymdownx.details
+  - pymdownx.critic
+  - pymdownx.caret
+  - pymdownx.keys
+  - pymdownx.mark
+  - pymdownx.tilde
+  - admonition
+  - attr_list
+  - md_in_html
+  - def_list
+  - footnotes
+  - tables
+  - toc:
+      permalink: true
+      toc_depth: 3
+
+extra:
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/ryansmccoy/feedspine
+    - icon: fontawesome/brands/python
+      link: https://pypi.org/project/feedspine/
+
+extra_css:
+  - stylesheets/extra.css
+
+watch:
+  - src/feedspine

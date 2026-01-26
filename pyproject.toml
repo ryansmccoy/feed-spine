@@ -1,0 +1,211 @@
+[project]
+name = "feedspine"
+version = "0.1.0"
+description = "Storage-agnostic, executor-agnostic feed capture framework"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "Ryan McCoy" }]
+keywords = ["feeds", "data-pipeline", "etl", "medallion", "capture"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Typing :: Typed",
+]
+
+dependencies = [
+    "pydantic>=2.0",
+    "pydantic-settings>=2.0",
+    "httpx>=0.27",
+    "typer>=0.12",
+    "rich>=13.0",
+    "aiofiles>=24.0",
+    "cachetools>=5.0",
+    "structlog>=24.0",
+    "beautifulsoup4>=4.14.3",
+    "lxml>=6.0.2",
+    "html2text>=2025.4.15",
+]
+
+[project.optional-dependencies]
+# Storage
+sqlalchemy = ["sqlalchemy[asyncio]>=2.0", "alembic>=1.13"]
+postgres = ["asyncpg>=0.29"]
+mysql = ["aiomysql>=0.2"]
+sqlite = ["aiosqlite>=0.20"]
+duckdb = [
+    "duckdb>=1.0",
+]
+redis = ["redis>=5.0"]
+mongo = ["motor>=3.0"]
+
+# Search
+elasticsearch = [
+    "elasticsearch[async]>=8.0",
+]
+meilisearch = ["meilisearch-python-sdk>=0.30"]
+
+# Vector
+chroma = ["chromadb>=0.4", "sentence-transformers>=2.2"]
+qdrant = ["qdrant-client>=1.8"]
+
+# Blob
+s3 = ["aioboto3>=12.0"]
+
+# Queue
+rabbitmq = ["aio-pika>=9.0"]
+kafka = ["aiokafka>=0.10"]
+
+# Notification
+slack = ["slack-sdk>=3.0"]
+
+# Executors
+celery = ["celery[redis]>=5.3"]
+prefect = ["prefect>=2.14"]
+
+# LLM
+llm = ["ollama>=0.3", "openai>=1.0", "anthropic>=0.30", "instructor>=1.0"]
+
+# API
+api = [
+    "fastapi>=0.111",
+    "uvicorn>=0.30",
+]
+
+# Bundles
+storage-all = ["asyncpg>=0.29", "aiosqlite>=0.20", "duckdb>=1.0", "redis>=5.0"]
+all = [
+    "asyncpg>=0.29",
+    "aiosqlite>=0.20",
+    "duckdb>=1.0",
+    "redis>=5.0",
+    "elasticsearch[async]>=8.0",
+    "aioboto3>=12.0",
+    "celery[redis]>=5.3",
+    "fastapi>=0.111",
+    "uvicorn>=0.30",
+]
+
+# Development
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+    "interrogate>=1.7",
+]
+
+# Documentation
+docs = [
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.26",
+    "mkdocs-gen-files>=0.5",
+    "mkdocs-literate-nav>=0.6",
+]
+
+[project.scripts]
+feedspine = "feedspine.cli:app"
+
+[project.urls]
+Homepage = "https://github.com/ryansmccoy/feed-spine"
+Documentation = "https://ryansmccoy.github.io/feed-spine/"
+Repository = "https://github.com/ryansmccoy/feed-spine"
+Changelog = "https://github.com/ryansmccoy/feed-spine/blob/main/CHANGELOG.md"
+Issues = "https://github.com/ryansmccoy/feed-spine/issues"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/feedspine"]
+
+# === UV CONFIG ===
+[tool.uv]
+dev-dependencies = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-cov>=5.0",
+    "ruff>=0.5",
+    "mypy>=1.10",
+    "pre-commit>=3.7",
+    "interrogate>=1.7",
+    # Docs
+    "mkdocs>=1.6",
+    "mkdocs-material>=9.5",
+    "mkdocstrings[python]>=0.26",
+    "mkdocs-gen-files>=0.5",
+    "mkdocs-literate-nav>=0.6",
+    "pytz>=2025.2",
+]
+
+# === RUFF (replaces black, isort, flake8) ===
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+]
+ignore = [
+    "E501", # line too long (handled by formatter)
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["feedspine"]
+
+# === MYPY ===
+[tool.mypy]
+python_version = "3.11"
+strict = true
+warn_return_any = true
+warn_unused_ignores = true
+plugins = ["pydantic.mypy"]
+
+[[tool.mypy.overrides]]
+module = ["tests.*"]
+disallow_untyped_defs = false
+
+# === PYTEST ===
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "-v --tb=short --doctest-modules"
+doctest_optionflags = ["NORMALIZE_WHITESPACE", "ELLIPSIS"]
+filterwarnings = ["ignore::DeprecationWarning"]
+
+# === INTERROGATE (docstring coverage) ===
+[tool.interrogate]
+ignore-init-method = true
+ignore-init-module = true
+ignore-magic = true
+ignore-semiprivate = true
+ignore-private = true
+ignore-property-decorators = true
+ignore-module = false
+ignore-nested-functions = true
+ignore-nested-classes = true
+fail-under = 80
+verbose = 1
+exclude = ["tests", "docs"]
+
+[tool.coverage.run]
+source = ["src/feedspine"]
+branch = true
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "if TYPE_CHECKING:"]

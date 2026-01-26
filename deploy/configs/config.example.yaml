@@ -1,0 +1,125 @@
+# FeedSpine Configuration
+#
+# YAML configuration file for FeedSpine.
+# Environment variables take precedence over this file.
+
+# =============================================================================
+# Storage Configuration
+# =============================================================================
+storage:
+  # Backend: memory | postgres | duckdb
+  backend: memory
+  
+  # PostgreSQL settings
+  postgres:
+    dsn: postgresql://feedspine:feedspine@localhost:5432/feedspine
+    pool_size: 5
+    max_overflow: 10
+  
+  # DuckDB settings
+  duckdb:
+    path: ./data/feedspine.duckdb
+    read_only: false
+
+# =============================================================================
+# Cache Configuration
+# =============================================================================
+cache:
+  # Backend: memory | redis
+  backend: memory
+  
+  # Default TTL in seconds
+  default_ttl: 3600
+  
+  # Redis settings
+  redis:
+    url: redis://localhost:6379/0
+    prefix: feedspine:
+
+# =============================================================================
+# Search Configuration
+# =============================================================================
+search:
+  # Backend: memory | elasticsearch
+  backend: memory
+  
+  # Elasticsearch settings
+  elasticsearch:
+    hosts:
+      - http://localhost:9200
+    index: feedspine
+    refresh_on_write: false
+
+# =============================================================================
+# API Configuration
+# =============================================================================
+api:
+  host: 0.0.0.0
+  port: 8000
+  reload: false
+  workers: 4
+  title: FeedSpine API
+  version: 0.1.0
+
+# =============================================================================
+# Feeds Configuration
+# =============================================================================
+feeds:
+  # SEC EDGAR RSS Feed
+  sec-rss:
+    type: rss
+    url: https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=&company=&dateb=&owner=include&count=100&output=atom
+    schedule: "*/5 * * * *"  # Every 5 minutes
+    enabled: true
+    
+  # SEC Full Index (Daily)
+  sec-full-index:
+    type: sec-full-index
+    url: https://www.sec.gov/Archives/edgar/full-index/
+    schedule: "0 6 * * *"  # 6 AM daily
+    enabled: true
+
+# =============================================================================
+# Enrichers Configuration
+# =============================================================================
+enrichers:
+  # Metadata enricher (always enabled)
+  - name: metadata
+    enabled: true
+    
+  # SEC-specific enricher
+  - name: sec-filing
+    enabled: true
+    config:
+      extract_exhibits: true
+      parse_header: true
+
+# =============================================================================
+# Notifications Configuration
+# =============================================================================
+notifications:
+  # Console (always enabled for dev)
+  console:
+    enabled: true
+    
+  # Slack (optional)
+  slack:
+    enabled: false
+    webhook_url: ""
+    channel: "#feedspine-alerts"
+
+# =============================================================================
+# Logging Configuration
+# =============================================================================
+logging:
+  level: INFO
+  format: json
+  handlers:
+    - console
+    # - file
+  
+  # File handler settings
+  file:
+    path: ./logs/feedspine.log
+    max_size: 10MB
+    backup_count: 5

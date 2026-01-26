@@ -1,0 +1,30 @@
+/* Custom styles for FeedSpine documentation */
+
+/* Code block improvements */
+.md-typeset code {
+    font-size: 0.85em;
+}
+
+/* Admonition styling */
+.md-typeset .admonition.note {
+    border-color: #448aff;
+}
+
+/* API reference styling */
+.doc-contents {
+    padding-left: 1rem;
+    border-left: 3px solid var(--md-primary-fg-color);
+}
+
+/* Function/method signatures */
+.doc-signature {
+    font-size: 0.9em;
+    background: var(--md-code-bg-color);
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+}
+
+/* Parameter tables */
+.doc-param-details {
+    margin-left: 1rem;
+}

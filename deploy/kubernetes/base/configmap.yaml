@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: feedspine-config
+  namespace: feedspine
+data:
+  FEEDSPINE_STORAGE_BACKEND: "memory"
+  FEEDSPINE_CACHE_BACKEND: "memory"
+  FEEDSPINE_SEARCH_BACKEND: "memory"
+  FEEDSPINE_API_HOST: "0.0.0.0"
+  FEEDSPINE_API_PORT: "8000"
+  FEEDSPINE_LOG_LEVEL: "INFO"

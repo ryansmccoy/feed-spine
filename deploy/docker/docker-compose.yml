@@ -1,0 +1,175 @@
+# FeedSpine Full Development Stack
+# 
+# Usage:
+#   docker compose up -d              # Start all services
+#   docker compose up -d postgres redis  # Start specific services
+#   docker compose logs -f feedspine-api # Follow API logs
+#   docker compose down -v            # Stop and remove volumes
+#
+# Services:
+#   - postgres (5432)     : Primary storage backend
+#   - redis (6379)        : Cache and message queue
+#   - elasticsearch (9200): Search backend
+#   - feedspine-api (8000): REST API service
+
+name: feedspine
+
+services:
+  # ==========================================================================
+  # Storage Backend: PostgreSQL
+  # ==========================================================================
+  postgres:
+    image: postgres:16-alpine
+    container_name: feedspine-postgres
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-feedspine}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-feedspine}
+      POSTGRES_DB: ${POSTGRES_DB:-feedspine}
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-scripts/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-feedspine}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # ==========================================================================
+  # Cache/Queue Backend: Redis
+  # ==========================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: feedspine-redis
+    command: redis-server --appendonly yes
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  # ==========================================================================
+  # Search Backend: Elasticsearch
+  # ==========================================================================
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:8.13.0
+    container_name: feedspine-elasticsearch
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.security.enrollment.enabled=false
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - cluster.name=feedspine
+    ports:
+      - "${ELASTICSEARCH_PORT:-9200}:9200"
+    volumes:
+      - elasticsearch_data:/usr/share/elasticsearch/data
+    healthcheck:
+      test: ["CMD-SHELL", "curl -s http://localhost:9200/_cluster/health | grep -q '\"status\":\"green\"\\|\"status\":\"yellow\"'"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+    restart: unless-stopped
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+      nofile:
+        soft: 65536
+        hard: 65536
+
+  # ==========================================================================
+  # FeedSpine API Service
+  # ==========================================================================
+  feedspine-api:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.api
+    container_name: feedspine-api
+    environment:
+      # Storage
+      FEEDSPINE_STORAGE_BACKEND: postgres
+      FEEDSPINE_POSTGRES_DSN: postgresql://${POSTGRES_USER:-feedspine}:${POSTGRES_PASSWORD:-feedspine}@postgres:5432/${POSTGRES_DB:-feedspine}
+      # Cache
+      FEEDSPINE_CACHE_BACKEND: redis
+      FEEDSPINE_REDIS_URL: redis://redis:6379/0
+      # Search
+      FEEDSPINE_SEARCH_BACKEND: elasticsearch
+      FEEDSPINE_ELASTICSEARCH_URL: http://elasticsearch:9200
+      # API
+      FEEDSPINE_API_HOST: 0.0.0.0
+      FEEDSPINE_API_PORT: 8000
+      FEEDSPINE_API_RELOAD: "true"
+    ports:
+      - "${API_PORT:-8000}:8000"
+    volumes:
+      - ../../src:/app/src:ro  # Mount source for hot reload in dev
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      elasticsearch:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    restart: unless-stopped
+
+  # ==========================================================================
+  # FeedSpine Worker (Background Collection)
+  # ==========================================================================
+  feedspine-worker:
+    build:
+      context: ../..
+      dockerfile: deploy/docker/Dockerfile.worker
+    container_name: feedspine-worker
+    environment:
+      FEEDSPINE_STORAGE_BACKEND: postgres
+      FEEDSPINE_POSTGRES_DSN: postgresql://${POSTGRES_USER:-feedspine}:${POSTGRES_PASSWORD:-feedspine}@postgres:5432/${POSTGRES_DB:-feedspine}
+      FEEDSPINE_CACHE_BACKEND: redis
+      FEEDSPINE_REDIS_URL: redis://redis:6379/0
+      FEEDSPINE_SEARCH_BACKEND: elasticsearch
+      FEEDSPINE_ELASTICSEARCH_URL: http://elasticsearch:9200
+    volumes:
+      - feedspine_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    profiles:
+      - worker  # Only start with: docker compose --profile worker up
+
+# ==========================================================================
+# Volumes
+# ==========================================================================
+volumes:
+  postgres_data:
+    name: feedspine_postgres_data
+  redis_data:
+    name: feedspine_redis_data
+  elasticsearch_data:
+    name: feedspine_elasticsearch_data
+  feedspine_data:
+    name: feedspine_data
+
+# ==========================================================================
+# Networks
+# ==========================================================================
+networks:
+  default:
+    name: feedspine_network
