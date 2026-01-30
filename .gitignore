@@ -48,5 +48,8 @@ site/
 # Linting
 .ruff_cache/
 
-# Archive (trustfall docs and other deprecated files)
+# Development/Session files (not for release)
 archive/
+docs/sessions/
+prompts/
+*.backup
