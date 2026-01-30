@@ -1,0 +1,16 @@
+{
+  "collection_id": "sec-daily-2024-01-15",
+  "feed_name": "sec-filings",
+  "position": {
+    "page": 3,
+    "cursor": "cursor-3"
+  },
+  "records_processed": 300,
+  "records_new": 240,
+  "records_duplicate": 60,
+  "records_failed": 0,
+  "started_at": "2026-01-29T22:09:41.580638+00:00",
+  "updated_at": "2026-01-29T22:09:41.890672+00:00",
+  "metadata": {},
+  "is_complete": true
+}

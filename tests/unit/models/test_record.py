@@ -142,3 +142,58 @@ class TestRecordPromotion:
         promoted = bronze_record.promote(Layer.SILVER)
         assert promoted.layer == Layer.SILVER
         assert promoted.content == bronze_record.content
+
+
+class TestRecordSightingTracking:
+    """Tests for Record sighting tracking fields (optimized storage)."""
+
+    @pytest.fixture
+    def record(self) -> Record:
+        """Create a test record."""
+        candidate = RecordCandidate(
+            natural_key="test-123",
+            published_at=datetime(2024, 1, 1, tzinfo=UTC),
+            content={"title": "Test"},
+            metadata=Metadata(source="test-feed"),
+        )
+        return Record.from_candidate(candidate, record_id="uuid-123")
+
+    def test_default_sighting_fields(self, record: Record) -> None:
+        """New records have default sighting tracking fields."""
+        assert record.first_seen_at is not None
+        assert record.last_seen_at is not None
+        assert record.seen_count == 1
+
+    def test_record_sighting_increments_count(self, record: Record) -> None:
+        """record_sighting() increments seen_count."""
+        updated = record.record_sighting()
+        assert updated.seen_count == 2
+        # Original unchanged
+        assert record.seen_count == 1
+
+    def test_record_sighting_updates_last_seen(self, record: Record) -> None:
+        """record_sighting() updates last_seen_at."""
+        import time
+        time.sleep(0.01)  # Ensure time difference
+        updated = record.record_sighting()
+        assert updated.last_seen_at >= record.last_seen_at
+
+    def test_record_sighting_preserves_first_seen(self, record: Record) -> None:
+        """record_sighting() does not change first_seen_at."""
+        updated = record.record_sighting()
+        assert updated.first_seen_at == record.first_seen_at
+
+    def test_multiple_sightings(self, record: Record) -> None:
+        """Multiple sightings accumulate correctly."""
+        r1 = record.record_sighting()
+        r2 = r1.record_sighting()
+        r3 = r2.record_sighting()
+        assert r3.seen_count == 4
+        assert r3.first_seen_at == record.first_seen_at
+        assert r3.last_seen_at >= r2.last_seen_at
+
+    def test_record_sighting_with_custom_time(self, record: Record) -> None:
+        """record_sighting() accepts custom seen_at time."""
+        custom_time = datetime(2025, 6, 15, tzinfo=UTC)
+        updated = record.record_sighting(seen_at=custom_time)
+        assert updated.last_seen_at == custom_time

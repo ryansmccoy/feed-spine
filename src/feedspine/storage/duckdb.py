@@ -92,7 +92,11 @@ class DuckDBStorage:
                 published_at TIMESTAMP WITH TIME ZONE NOT NULL,
                 captured_at TIMESTAMP WITH TIME ZONE NOT NULL,
                 updated_at TIMESTAMP WITH TIME ZONE NOT NULL,
-                version INTEGER NOT NULL DEFAULT 1
+                version INTEGER NOT NULL DEFAULT 1,
+                -- Sighting tracking fields (optimized storage - avoids table bloat)
+                first_seen_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                last_seen_at TIMESTAMP WITH TIME ZONE NOT NULL,
+                seen_count INTEGER NOT NULL DEFAULT 1
             )
         """)
 
@@ -174,8 +178,9 @@ class DuckDBStorage:
         self._conn.execute(
             """
             INSERT OR REPLACE INTO records
-                (id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+                (id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version,
+                 first_seen_at, last_seen_at, seen_count)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             [
                 record.id,
@@ -187,6 +192,9 @@ class DuckDBStorage:
                 record.captured_at.isoformat(),
                 record.updated_at.isoformat(),
                 record.version,
+                record.first_seen_at.isoformat(),
+                record.last_seen_at.isoformat(),
+                record.seen_count,
             ],
         )
 
@@ -461,6 +469,43 @@ class DuckDBStorage:
         )
         return True
 
+    async def record_sighting_on_existing(self, natural_key: str) -> Record | None:
+        """Update sighting tracking on an existing record.
+
+        Updates last_seen_at and increments seen_count on the record itself.
+        This is the optimized sighting pattern that avoids sighting table bloat.
+
+        Args:
+            natural_key: The natural key of the record to update.
+
+        Returns:
+            Updated record if found, None otherwise.
+
+        Example:
+            >>> import asyncio
+            >>> from feedspine.storage.duckdb import DuckDBStorage
+            >>> async def example():
+            ...     storage = DuckDBStorage(":memory:")
+            ...     await storage.initialize()
+            ...     # ... store a record, then:
+            ...     # updated = await storage.record_sighting_on_existing("key")
+            ...     await storage.close()
+            >>> asyncio.run(example())
+        """
+        assert self._conn is not None, "Storage not initialized"
+
+        # Get existing record
+        record = await self.get_by_natural_key(natural_key)
+        if record is None:
+            return None
+
+        # Update sighting tracking on the record
+        updated_record = record.record_sighting()
+
+        # Store the updated record (will overwrite due to same ID)
+        await self.store(updated_record)
+        return updated_record
+
     async def get_sightings(self, natural_key: str) -> list[Sighting]:
         """Get all sightings for a natural key.
 
@@ -541,16 +586,19 @@ class DuckDBStorage:
         # Build SQL based on conflict strategy
         if on_conflict == "skip":
             sql = """INSERT OR IGNORE INTO records 
-                     (id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                     (id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version,
+                      first_seen_at, last_seen_at, seen_count)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
         elif on_conflict == "update":
             sql = """INSERT OR REPLACE INTO records 
-                     (id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                     (id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version,
+                      first_seen_at, last_seen_at, seen_count)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
         else:  # error
             sql = """INSERT INTO records 
-                     (id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version)
-                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"""
+                     (id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version,
+                      first_seen_at, last_seen_at, seen_count)
+                     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"""
 
         # Process in batches
         for i in range(0, len(records), batch_size):
@@ -568,6 +616,9 @@ class DuckDBStorage:
                     record.captured_at.isoformat(),
                     record.updated_at.isoformat(),
                     record.version,
+                    record.first_seen_at.isoformat(),
+                    record.last_seen_at.isoformat(),
+                    record.seen_count,
                 ])
 
             # Execute batch
@@ -734,7 +785,8 @@ class DuckDBStorage:
 
     def _row_to_record(self, row: tuple[Any, ...]) -> Record:
         """Convert database row to Record model."""
-        # Columns: id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version
+        # Columns: id, natural_key, layer, content, metadata, published_at, captured_at, updated_at, version,
+        #          first_seen_at, last_seen_at, seen_count
         content = row[3] if isinstance(row[3], dict) else json.loads(row[3])
         metadata_raw = row[4] if isinstance(row[4], dict) else json.loads(row[4])
 
@@ -757,4 +809,7 @@ class DuckDBStorage:
             captured_at=parse_datetime(row[6]),
             updated_at=parse_datetime(row[7]),
             version=row[8] if len(row) > 8 else 1,
+            first_seen_at=parse_datetime(row[9]) if len(row) > 9 else parse_datetime(row[6]),
+            last_seen_at=parse_datetime(row[10]) if len(row) > 10 else parse_datetime(row[6]),
+            seen_count=row[11] if len(row) > 11 else 1,
         )

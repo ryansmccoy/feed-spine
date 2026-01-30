@@ -173,6 +173,54 @@ class MemoryStorage:
 
         return is_first_sighting
 
+    async def record_sighting_on_existing(self, natural_key: str) -> Record | None:
+        """Update sighting tracking on an existing record.
+
+        Updates last_seen_at and increments seen_count on the record itself.
+        This is the optimized sighting pattern that avoids sighting table bloat.
+
+        Args:
+            natural_key: The natural key of the record to update.
+
+        Returns:
+            Updated record if found, None otherwise.
+
+        Example:
+            >>> import asyncio
+            >>> from feedspine.storage.memory import MemoryStorage
+            >>> from feedspine.models.record import Record, RecordCandidate
+            >>> from feedspine.models.base import Metadata, Layer
+            >>> from datetime import datetime, UTC
+            >>> async def example():
+            ...     storage = MemoryStorage()
+            ...     await storage.initialize()
+            ...     # Create and store a record
+            ...     candidate = RecordCandidate(
+            ...         natural_key="test-key",
+            ...         published_at=datetime.now(UTC),
+            ...         content={"title": "Test"},
+            ...         metadata=Metadata(source="test"),
+            ...     )
+            ...     record = Record.from_candidate(candidate, "id-1")
+            ...     await storage.store(record)
+            ...     # Record a sighting
+            ...     updated = await storage.record_sighting_on_existing("test-key")
+            ...     return updated.seen_count if updated else 0
+            >>> asyncio.run(example())
+            2
+        """
+        normalized = natural_key.strip().lower()
+        record = await self.get_by_natural_key(normalized)
+        if record is None:
+            return None
+
+        # Update sighting tracking on the record
+        updated_record = record.record_sighting()
+
+        # Store the updated record
+        await self.store(updated_record)
+        return updated_record
+
     async def get_sightings(self, natural_key: str) -> list[Sighting]:
         """Get all sightings for a natural key."""
         normalized = natural_key.strip().lower()

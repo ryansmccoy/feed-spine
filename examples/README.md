@@ -21,6 +21,9 @@ python examples/01_quickstart.py
 | [03_duckdb_storage.py](03_duckdb_storage.py) | Persistent storage with DuckDB |
 | [04_sec_edgar_feed.py](04_sec_edgar_feed.py) | SEC EDGAR filing monitoring |
 | [05_entityspine_integration.py](05_entityspine_integration.py) | Integration with EntitySpine |
+| [06_operational_tracking.py](06_operational_tracking.py) | FeedRun tracking, sightings, checkpoints |
+| [07_smart_sync_strategy.py](07_smart_sync_strategy.py) | **Smart sync strategies for multi-source optimization** |
+| [08_auto_key_generation.py](08_auto_key_generation.py) | **Auto-generate unique keys when source lacks IDs** |
 
 ## Installation Options
 

@@ -1,4 +1,34 @@
-"""FeedSpine - Storage-agnostic feed capture framework."""
+"""
+FeedSpine - Storage-Agnostic Feed Capture Framework.
+
+FeedSpine is a protocol-based framework for building data collection pipelines
+with automatic deduplication, sighting history, and medallion architecture.
+
+Key Features:
+- Protocol-based design (swap backends without code changes)
+- Medallion architecture (Bronze → Silver → Gold)
+- Automatic natural key deduplication
+- Complete sighting history tracking
+- Checkpoint/resume for long-running jobs
+
+Quick Start:
+    >>> from feedspine import FeedSpine, MemoryStorage, RSSFeedAdapter
+    >>> storage = MemoryStorage()
+    >>> async with FeedSpine(storage=storage) as spine:
+    ...     spine.register_feed(RSSFeedAdapter(name="news", url="https://..."))
+    ...     result = await spine.collect()
+
+Architecture:
+    Storage Backends: MemoryStorage, DuckDBStorage
+    Feed Adapters: RSSFeedAdapter, JSONFeedAdapter
+    Enrichers: PassthroughEnricher, MetadataEnricher
+    Search: MemorySearch, ElasticsearchSearch
+
+See Also:
+    - https://github.com/ryansmccoy/feed-spine
+    - entityspine: Domain models for entity resolution
+    - capture-spine: Point-in-time content capture
+"""
 
 # Feed adapters
 from feedspine.adapter.base import BaseFeedAdapter, FeedAdapter, FeedError
@@ -21,6 +51,7 @@ from feedspine.enricher.passthrough import PassthroughEnricher
 # Executor backends
 from feedspine.executor.sync import SyncExecutor
 from feedspine.models.base import Layer
+from feedspine.models.feed_run import FeedRun, FeedRunStatus
 from feedspine.models.record import Record, RecordCandidate
 from feedspine.models.sighting import Sighting
 from feedspine.models.task import Task, TaskResult, TaskStatus
@@ -120,6 +151,15 @@ except ImportError:
     RichProgressReporter = None  # type: ignore[misc,assignment]
     SimpleProgressReporter = None  # type: ignore[misc,assignment]
 
+# Adapter discovery
+from feedspine.discovery import (
+    clear_cache as clear_adapter_cache,
+    discover_adapters,
+    get_adapter,
+    list_adapters,
+    register_adapter,
+)
+
 __version__ = "0.1.0"
 
 __all__ = [
@@ -131,6 +171,9 @@ __all__ = [
     "Task",
     "TaskResult",
     "TaskStatus",
+    # Feed run tracking
+    "FeedRun",
+    "FeedRunStatus",
     # Content typing
     "ContentSchema",
     "TypedRecord",
@@ -217,6 +260,12 @@ __all__ = [
     "FileCheckpointStore",
     # API
     "create_api_app",
+    # Adapter discovery
+    "discover_adapters",
+    "get_adapter",
+    "list_adapters",
+    "register_adapter",
+    "clear_adapter_cache",
     # Version
     "__version__",
 ]

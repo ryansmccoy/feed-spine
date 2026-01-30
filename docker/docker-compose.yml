@@ -1,0 +1,171 @@
+# FeedSpine Database Infrastructure
+#
+# Usage:
+#   docker compose up -d postgres      # Just PostgreSQL
+#   docker compose up -d timescale     # TimescaleDB (time-series optimized)
+#   docker compose up -d               # All services
+#
+# Data directories are mounted to ./data/<service> by default
+# Override with environment variables:
+#   FEEDSPINE_DATA_DIR=/path/to/data docker compose up -d
+#
+# Connection strings (for FeedSpine):
+#   PostgreSQL: postgresql://feedspine:feedspine@localhost:5432/feedspine
+#   TimescaleDB: postgresql://feedspine:feedspine@localhost:5433/feedspine
+
+version: '3.8'
+
+x-postgres-common: &postgres-common
+  restart: unless-stopped
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U feedspine -d feedspine"]
+    interval: 10s
+    timeout: 5s
+    retries: 5
+  networks:
+    - feedspine
+
+services:
+  # =============================================================================
+  # PostgreSQL - Standard relational storage
+  # =============================================================================
+  postgres:
+    image: postgres:16-alpine
+    <<: *postgres-common
+    container_name: feedspine-postgres
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    environment:
+      POSTGRES_USER: feedspine
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-feedspine}
+      POSTGRES_DB: feedspine
+      # Performance tuning for larger datasets
+      POSTGRES_INITDB_ARGS: "--data-checksums"
+    volumes:
+      - ${FEEDSPINE_DATA_DIR:-./data}/postgres:/var/lib/postgresql/data
+      - ./init-scripts/postgres:/docker-entrypoint-initdb.d:ro
+    command:
+      - "postgres"
+      - "-c" 
+      - "shared_buffers=256MB"
+      - "-c"
+      - "effective_cache_size=1GB"
+      - "-c"
+      - "maintenance_work_mem=128MB"
+      - "-c"
+      - "checkpoint_completion_target=0.9"
+      - "-c"
+      - "wal_buffers=16MB"
+      - "-c"
+      - "default_statistics_target=100"
+      - "-c"
+      - "random_page_cost=1.1"
+      - "-c"
+      - "effective_io_concurrency=200"
+      - "-c"
+      - "work_mem=16MB"
+      - "-c"
+      - "min_wal_size=1GB"
+      - "-c"
+      - "max_wal_size=4GB"
+      - "-c"
+      - "max_worker_processes=4"
+      - "-c"
+      - "max_parallel_workers_per_gather=2"
+      - "-c"
+      - "max_parallel_workers=4"
+      - "-c"
+      - "max_parallel_maintenance_workers=2"
+
+  # =============================================================================
+  # TimescaleDB - Time-series optimized PostgreSQL
+  # Best for: observations, events, time-partitioned data
+  # =============================================================================
+  timescale:
+    image: timescale/timescaledb:latest-pg16
+    <<: *postgres-common
+    container_name: feedspine-timescale
+    ports:
+      - "${TIMESCALE_PORT:-5433}:5432"
+    environment:
+      POSTGRES_USER: feedspine
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-feedspine}
+      POSTGRES_DB: feedspine
+      TIMESCALEDB_TELEMETRY: "off"
+    volumes:
+      - ${FEEDSPINE_DATA_DIR:-./data}/timescale:/var/lib/postgresql/data
+      - ./init-scripts/timescale:/docker-entrypoint-initdb.d:ro
+    command:
+      - "postgres"
+      - "-c"
+      - "shared_buffers=512MB"
+      - "-c"
+      - "effective_cache_size=2GB"
+      - "-c"
+      - "maintenance_work_mem=256MB"
+      - "-c"
+      - "timescaledb.max_background_workers=4"
+
+  # =============================================================================
+  # PgBouncer - Connection pooling (essential for high concurrency)
+  # =============================================================================
+  pgbouncer:
+    image: edoburu/pgbouncer:latest
+    container_name: feedspine-pgbouncer
+    restart: unless-stopped
+    ports:
+      - "${PGBOUNCER_PORT:-6432}:6432"
+    environment:
+      DATABASE_URL: postgres://feedspine:${POSTGRES_PASSWORD:-feedspine}@postgres:5432/feedspine
+      POOL_MODE: transaction
+      MAX_CLIENT_CONN: 1000
+      DEFAULT_POOL_SIZE: 20
+      MIN_POOL_SIZE: 5
+      RESERVE_POOL_SIZE: 5
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - feedspine
+
+  # =============================================================================
+  # Redis - Caching layer for hot data
+  # =============================================================================
+  redis:
+    image: redis:7-alpine
+    container_name: feedspine-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - ${FEEDSPINE_DATA_DIR:-./data}/redis:/data
+    command: redis-server --appendonly yes --maxmemory 512mb --maxmemory-policy allkeys-lru
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - feedspine
+
+  # =============================================================================
+  # Adminer - Database admin UI (optional, for development)
+  # =============================================================================
+  adminer:
+    image: adminer:latest
+    container_name: feedspine-adminer
+    restart: unless-stopped
+    ports:
+      - "${ADMINER_PORT:-8080}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      - postgres
+    networks:
+      - feedspine
+    profiles:
+      - dev
+
+networks:
+  feedspine:
+    driver: bridge

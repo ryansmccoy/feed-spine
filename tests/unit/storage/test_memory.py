@@ -340,6 +340,61 @@ class TestMemoryStorageSightings:
         assert sightings == []
 
 
+class TestMemoryStorageRecordSightingTracking:
+    """Tests for record-level sighting tracking (first_seen_at, last_seen_at, seen_count)."""
+
+    async def test_record_sighting_on_existing_updates_fields(
+        self, storage: MemoryStorage
+    ) -> None:
+        """record_sighting_on_existing updates tracking fields on stored record."""
+        record = make_record("sight-key")
+        await storage.store(record)
+
+        # Record a sighting
+        updated = await storage.record_sighting_on_existing(record.natural_key)
+
+        assert updated is not None
+        assert updated.seen_count == 2  # 1 (initial) + 1 (sighting)
+        assert updated.last_seen_at > record.first_seen_at
+
+    async def test_record_sighting_on_existing_preserves_first_seen(
+        self, storage: MemoryStorage
+    ) -> None:
+        """Multiple sightings preserve original first_seen_at."""
+        record = make_record("preserve-key")
+        await storage.store(record)
+        original_first_seen = record.first_seen_at
+
+        # Record multiple sightings
+        for _ in range(3):
+            await storage.record_sighting_on_existing(record.natural_key)
+
+        retrieved = await storage.get_by_natural_key("preserve-key")
+        assert retrieved is not None
+        assert retrieved.first_seen_at == original_first_seen
+        assert retrieved.seen_count == 4  # 1 + 3
+
+    async def test_record_sighting_on_existing_nonexistent_returns_none(
+        self, storage: MemoryStorage
+    ) -> None:
+        """record_sighting_on_existing returns None for nonexistent key."""
+        result = await storage.record_sighting_on_existing("does-not-exist")
+        assert result is None
+
+    async def test_stored_record_has_sighting_fields(
+        self, storage: MemoryStorage
+    ) -> None:
+        """Newly stored records have sighting tracking fields initialized."""
+        record = make_record("new-record")
+        await storage.store(record)
+
+        retrieved = await storage.get(record.id)
+        assert retrieved is not None
+        assert retrieved.first_seen_at is not None
+        assert retrieved.last_seen_at is not None
+        assert retrieved.seen_count == 1
+
+
 # =============================================================================
 # Lifecycle Operations
 # =============================================================================

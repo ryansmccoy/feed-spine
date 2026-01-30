@@ -13,6 +13,7 @@ from feedspine.models.converter import (
     RecordConverter,
     converter_registry,
 )
+from feedspine.models.feed_run import FeedRun, FeedRunStatus
 from feedspine.models.query import Query, QuerySpec
 from feedspine.models.record import Record, RecordCandidate
 from feedspine.models.sighting import Sighting
@@ -40,6 +41,9 @@ __all__ = [
     "Record",
     "RecordCandidate",
     "Sighting",
+    # Feed runs (operational tracking)
+    "FeedRun",
+    "FeedRunStatus",
     # Tasks
     "Task",
     "TaskResult",

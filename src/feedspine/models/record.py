@@ -111,6 +111,21 @@ class Record(FeedSpineModel):
     metadata: Metadata = Field(...)
     version: int = Field(default=1, ge=1, description="Version for optimistic locking")
 
+    # Sighting tracking fields (optimized storage - avoids sighting table bloat)
+    first_seen_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When this record was first seen across all feeds",
+    )
+    last_seen_at: datetime = Field(
+        default_factory=lambda: datetime.now(UTC),
+        description="When this record was last seen (most recent sighting)",
+    )
+    seen_count: int = Field(
+        default=1,
+        ge=1,
+        description="Total number of times this record was sighted",
+    )
+
     @classmethod
     def from_candidate(cls, candidate: RecordCandidate, record_id: str) -> Record:
         """Create a Record from a RecordCandidate.
@@ -178,5 +193,44 @@ class Record(FeedSpineModel):
                 "content": new_content,
                 "updated_at": datetime.now(UTC),
                 "version": self.version + 1,
+            }
+        )
+
+    def record_sighting(self, seen_at: datetime | None = None) -> Record:
+        """Create an updated record with sighting tracked.
+
+        Updates last_seen_at and increments seen_count.
+        This is the optimized sighting pattern that avoids table bloat.
+
+        Args:
+            seen_at: When the sighting occurred (defaults to now).
+
+        Returns:
+            A new Record with updated sighting fields.
+
+        Example:
+            >>> from feedspine.models.record import Record, RecordCandidate
+            >>> from feedspine.models.base import Layer, Metadata
+            >>> from datetime import datetime, timezone
+            >>> m = Metadata(source="src")
+            >>> c = RecordCandidate(
+            ...     natural_key="k1",
+            ...     published_at=datetime(2024, 1, 1, tzinfo=timezone.utc),
+            ...     metadata=m,
+            ... )
+            >>> r = Record.from_candidate(c, "id-1")
+            >>> r.seen_count
+            1
+            >>> r2 = r.record_sighting()
+            >>> r2.seen_count
+            2
+            >>> r2.last_seen_at >= r.first_seen_at
+            True
+        """
+        now = seen_at or datetime.now(UTC)
+        return self.model_copy(
+            update={
+                "last_seen_at": now,
+                "seen_count": self.seen_count + 1,
             }
         )

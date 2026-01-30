@@ -1,0 +1,46 @@
+# FeedSpine - Ecosystem Metadata
+# Auto-consumed by scripts/generate_ecosystem_docs.py
+
+name: feedspine
+tagline: "Storage-Agnostic Feed Capture Framework"
+status: public
+pypi: feedspine
+github: ryansmccoy/feed-spine
+
+categories:
+  - data-pipeline
+  - feed-ingestion
+  - etl
+
+key_features:
+  - "Protocol-based design (swap backends without code changes)"
+  - "Medallion architecture (Bronze → Silver → Gold)"
+  - "Automatic natural key deduplication"
+  - "Complete sighting history tracking"
+  - "Checkpoint/resume for long-running jobs"
+  - "Progress reporting with callbacks"
+
+key_docs:
+  - docs/ARCHITECTURE_ANALYSIS.md
+  - docs/API_DESIGN_AND_CONTRACTS.md
+  - docs/DATA_ARCHETYPES_GUIDE.md
+  - docs/FEEDSPINE_ENTITYSPINE_INTEGRATION.md
+
+key_models:
+  - src/feedspine/models/record.py
+  - src/feedspine/models/sighting.py
+  - src/feedspine/models/feed_run.py
+  - src/feedspine/models/task.py
+
+integration_points:
+  entityspine: "Uses domain models for entity-linked observations"
+  capture-spine: "Provides feed infrastructure for content capture"
+  py-sec-edgar: "SEC feed adapters (RSS, daily index, quarterly index)"
+
+recent_features:
+  - date: 2026-01-15
+    feature: "Checkpoint/resume support for long-running collections"
+    version: v0.1.0
+  - date: 2026-01-10
+    feature: "Progress reporting protocol with callbacks"
+    version: v0.1.0
