@@ -21,6 +21,7 @@ uv add feedspine
 
 # Or with pip
 pip install feedspine
+```
 
 ## Installation with Extras
 
@@ -78,8 +79,8 @@ For contributing to FeedSpine:
 
 ```bash
 # Clone the repository
-git clone https://github.com/ryansmccoy/feedspine.git
-cd feedspine
+git clone https://github.com/ryansmccoy/feed-spine.git
+cd feed-spine
 
 # Install with uv (recommended)
 uv sync

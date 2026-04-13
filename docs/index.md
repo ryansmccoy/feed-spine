@@ -75,4 +75,4 @@ uv add "feedspine[all]"
 
 ## License
 
-MIT License - see [LICENSE](https://github.com/ryansmccoy/feedspine/blob/main/LICENSE)
+MIT License - see [LICENSE](https://github.com/ryansmccoy/feed-spine/blob/main/LICENSE)

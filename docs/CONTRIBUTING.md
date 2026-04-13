@@ -14,8 +14,8 @@ Thank you for contributing! This guide ensures consistency across the codebase.
 
 ```bash
 # Clone and setup
-git clone https://github.com/ryansmccoy/feedspine
-cd feedspine
+git clone https://github.com/ryansmccoy/feed-spine.git
+cd feed-spine
 
 # Install with uv (recommended)
 uv sync --all-extras

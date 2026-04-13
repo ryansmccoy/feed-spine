@@ -20,8 +20,8 @@ Set up your development environment for contributing to FeedSpine.
 
 ```bash
 # Clone the repository
-git clone https://github.com/ryansmccoy/feedspine.git
-cd feedspine
+git clone https://github.com/ryansmccoy/feed-spine.git
+cd feed-spine
 
 # Create virtual environment and install dependencies
 uv sync

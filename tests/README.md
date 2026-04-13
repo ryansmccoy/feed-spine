@@ -46,7 +46,7 @@ tests/
 ### 1. Install Dependencies
 
 ```bash
-cd feedspine
+cd feed-spine
 npm install
 ```
 
@@ -334,7 +334,7 @@ jobs:
           
       - name: Install dependencies
         run: |
-          cd feedspine
+          cd feed-spine
           npm install
           npx playwright install --with-deps
           
@@ -347,7 +347,7 @@ jobs:
           
       - name: Run tests
         run: |
-          cd feedspine
+          cd feed-spine
           npm test
           
       - name: Upload test results

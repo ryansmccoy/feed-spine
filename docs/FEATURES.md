@@ -102,4 +102,4 @@ updated: 2026-06-15
 
 ---
 
-*For detailed changes, see [CHANGELOG.md](../CHANGELOG.md).*
+*For detailed changes, see [CHANGELOG.md](CHANGELOG.md).*
