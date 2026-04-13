@@ -3,7 +3,7 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "feedspine"
+name = "feed-spine"
 version = "0.3.0"
 description = "Storage-agnostic, executor-agnostic feed capture framework"
 readme = "README.md"
