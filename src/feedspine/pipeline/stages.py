@@ -10,7 +10,7 @@ from __future__ import annotations
 import uuid
 from typing import TYPE_CHECKING
 
-from spine.events import Event
+from feedspine._vendor.events import Event
 
 from feedspine.models.record import Record
 from feedspine.models.sighting import Sighting

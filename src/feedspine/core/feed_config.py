@@ -43,7 +43,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 logger = get_logger(__name__)
 

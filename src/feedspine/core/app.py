@@ -18,7 +18,7 @@ from dataclasses import dataclass, field
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
-    from spine.events import EventBus
+    from feedspine._vendor.events import EventBus
 
     from feedspine.enricher.worker import FeedEnrichmentWorker
     from feedspine.models.base import Layer
@@ -142,7 +142,7 @@ def create_feed_spine(
 
     # Watermark store — use provided or in-memory default
     if watermark_store is None:
-        from spine.domain.watermarks import WatermarkStore
+        from feedspine._vendor.ports import WatermarkStore
 
         watermark_store = WatermarkStore()
 

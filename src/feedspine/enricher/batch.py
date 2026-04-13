@@ -10,12 +10,14 @@ from datetime import UTC, datetime
 from typing import TYPE_CHECKING
 from uuid import uuid4
 
-from spine.ports.dispatch_config import DispatchConfig
+from feedspine._vendor.execution import BackoffPolicy, DispatchConfig
 
 if TYPE_CHECKING:
-    from spine.ports.work_item_store import WorkItemStore
+    from typing import Any
 
-from spine.ports.backoff_policy import BackoffPolicy
+    class WorkItemStore:
+        """Stub for type checking — actual impl from spine-core."""
+        def create(self, **kwargs: Any) -> int: ...
 
 
 def create_enrichment_work_items(

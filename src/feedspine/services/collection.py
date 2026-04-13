@@ -11,7 +11,10 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
 
-from spine.events import EventBus
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from feedspine._vendor.events import EventBus
 
 from feedspine.pipeline.core import Pipeline
 from feedspine.pipeline.stats import PipelineStats

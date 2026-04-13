@@ -71,7 +71,13 @@ async def collect_run(
     import asyncio
     import sqlite3
 
-    from spine.data.stores.sqlite.work_item_store import SqliteWorkItemStore
+    try:
+        from spine.data.stores.sqlite.work_item_store import SqliteWorkItemStore
+    except ImportError:
+        raise SystemExit(
+            "spine-core is required for work-item based collection. "
+            "Install it with: pip install spine-core"
+        )
 
     from feedspine.core.feed_config import create_adapters_from_config, find_config_file, load_config
     from feedspine.ops import OperationContext

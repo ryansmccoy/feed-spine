@@ -25,7 +25,7 @@ from __future__ import annotations
 import time
 from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.models.base import Layer
 from feedspine.protocols.enricher import EnrichmentResult, EnrichmentStatus

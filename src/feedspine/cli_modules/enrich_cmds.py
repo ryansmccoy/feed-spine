@@ -35,7 +35,13 @@ def _open_work_item_store(db_path: str | None) -> tuple[object, object]:
     """
     import sqlite3
 
-    from spine.data.stores.sqlite.work_item_store import SqliteWorkItemStore
+    try:
+        from spine.data.stores.sqlite.work_item_store import SqliteWorkItemStore
+    except ImportError:
+        raise SystemExit(
+            "spine-core is required for work-item based enrichment. "
+            "Install it with: pip install spine-core"
+        )
 
     db = db_path or "spine.db"
     conn = sqlite3.connect(db)

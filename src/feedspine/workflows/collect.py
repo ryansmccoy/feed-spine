@@ -20,14 +20,17 @@ import asyncio
 from typing import Any
 from uuid import uuid4
 
-from spine.core.logging import get_logger
-from spine.runtime.lifecycle import (
+from feedspine._vendor.execution import (
     ExecutionErrorCategory,
     ExecutionHandle,
     ExecutionState,
     ExecutionStatus,
 )
-from spine.runtime.requests import ExecutionRequest
+from feedspine._vendor.logging import get_logger
+
+# ExecutionRequest is a discriminated union from spine.runtime.requests;
+# we only need it for type annotations here.
+ExecutionRequest = Any
 
 from feedspine.services.collection import CollectionOutcome, FeedCollectionService
 from feedspine.services.publishing import CollectionEventPublisher

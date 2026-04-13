@@ -30,7 +30,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 try:
     from fastapi import FastAPI

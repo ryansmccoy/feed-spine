@@ -10,8 +10,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from spine.core.logging import get_logger
-from spine.ports import EventStore
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from feedspine._vendor.events import EventStore
+
+from feedspine._vendor.logging import get_logger
 
 from feedspine.services.collection import CollectionOutcome
 

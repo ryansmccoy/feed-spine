@@ -1,15 +1,15 @@
-"""Event bus re-exports from spine-core.
+"""Event bus re-exports — backward compatibility aliases.
 
 Feed-spine's original ``MessageQueue`` protocol duplicated spine-core's
-``EventBus``.  This module now re-exports spine-core's canonical event
-types so existing ``from feedspine.protocols.queue import …`` imports
-continue to work.
-
-For fan-out pub/sub use :class:`spine.events.EventBus`.
-For competing-consumer task dispatch use :class:`spine.ports.work_item_store.WorkItemStore`.
+``EventBus``.  This module provides backward-compatible aliases so
+existing ``from feedspine.protocols.queue import …`` imports work.
 """
 
-from spine.events import Event as Message  # noqa: F401 — backward compat alias
-from spine.events import EventBus as MessageQueue  # noqa: F401 — backward compat alias
+try:
+    from spine.events import Event as Message  # noqa: F401
+    from spine.events import EventBus as MessageQueue  # noqa: F401
+except ImportError:
+    from feedspine._vendor.events import Event as Message  # noqa: F401
+    from feedspine._vendor.events import EventBus as MessageQueue  # noqa: F401
 
 __all__ = ["Message", "MessageQueue"]

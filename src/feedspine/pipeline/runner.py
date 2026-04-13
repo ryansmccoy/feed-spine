@@ -11,7 +11,7 @@ import time
 import uuid
 from typing import TYPE_CHECKING
 
-from spine.core.logging import LogScope, get_logger
+from feedspine._vendor.logging import LogScope, get_logger
 
 from feedspine.core.exceptions import FeedSpineError
 from feedspine.models.run_event import RunEvent

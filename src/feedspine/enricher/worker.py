@@ -12,12 +12,10 @@ import json
 import time
 from typing import TYPE_CHECKING, Any
 
-from spine.core.logging import get_logger
-from spine.ports.executor import DispatchResult
+from feedspine._vendor.execution import DispatchConfig, DispatchResult
+from feedspine._vendor.logging import get_logger
 
 if TYPE_CHECKING:
-    from spine.ports.dispatch_config import DispatchConfig
-
     from feedspine.protocols.enricher import Enricher
     from feedspine.protocols.storage import StorageBackend
 

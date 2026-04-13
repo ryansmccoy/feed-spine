@@ -13,7 +13,7 @@ from feedspine.pipeline.runner import run_feed
 from feedspine.pipeline.stages import process_candidate
 
 if TYPE_CHECKING:
-    from spine.events import EventBus
+    from feedspine._vendor.events import EventBus
 
     from feedspine.models.record import RecordCandidate
     from feedspine.protocols.feed import FeedAdapter

@@ -21,8 +21,12 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 
-from spine.core.logging import get_logger
-from spine.domain.watermarks import WatermarkStore
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from feedspine._vendor.ports import WatermarkStore
+
+from feedspine._vendor.logging import get_logger
 
 from feedspine.services.collection import CollectionOutcome
 
