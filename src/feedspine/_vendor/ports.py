@@ -1,8 +1,8 @@
 """Vendored spine-core port protocols used by feedspine.
 
 Contains the minimal protocol definitions for ``ScheduleStore``,
-``EventRuleStore``, and the ``WorkItemCreate`` dataclass so that
-feedspine's ``registration`` module works without spine-core.
+``EventRuleStore``, ``WatermarkStore``, and the ``WorkItemCreate``
+dataclass so that feedspine works without spine-core.
 """
 
 from __future__ import annotations
@@ -53,3 +53,82 @@ class WorkItemCreate:
     tags: str = ""
     max_attempts: int = 3
     metadata: dict[str, Any] = field(default_factory=dict)
+
+
+# ---------------------------------------------------------------------------
+# WatermarkStore — in-memory fallback
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True, slots=True)
+class Watermark:
+    """High-water mark for a single (domain, source, partition_key) cursor."""
+
+    domain: str
+    source: str
+    partition_key: str
+    high_water: str
+    low_water: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
+    updated_at: Any = None  # datetime | None
+
+
+class WatermarkStore:
+    """In-memory watermark tracker (lightweight standalone fallback).
+
+    When spine-core is installed callers should prefer
+    ``spine.domain.watermarks.WatermarkStore`` which persists to SQLite.
+    """
+
+    def __init__(self) -> None:
+        self._marks: dict[tuple[str, str, str], Watermark] = {}
+
+    def upsert(
+        self,
+        domain: str,
+        source: str,
+        partition_key: str,
+        high_water: str,
+        *,
+        low_water: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> Watermark:
+        key = (domain, source, partition_key)
+        wm = Watermark(
+            domain=domain,
+            source=source,
+            partition_key=partition_key,
+            high_water=high_water,
+            low_water=low_water,
+            metadata=metadata or {},
+        )
+        self._marks[key] = wm
+        return wm
+
+    def get(self, domain: str, source: str, partition_key: str) -> Watermark | None:
+        return self._marks.get((domain, source, partition_key))
+
+    def advance(
+        self,
+        domain: str,
+        source: str,
+        partition_key: str,
+        high_water: str,
+        *,
+        low_water: str | None = None,
+        metadata: dict[str, Any] | None = None,
+    ) -> Watermark:
+        """Alias for upsert — advances the high-water mark."""
+        return self.upsert(
+            domain=domain,
+            source=source,
+            partition_key=partition_key,
+            high_water=high_water,
+            low_water=low_water,
+            metadata=metadata,
+        )
+
+    def list_all(self, domain: str | None = None) -> list[Watermark]:
+        if domain is None:
+            return list(self._marks.values())
+        return [w for w in self._marks.values() if w.domain == domain]

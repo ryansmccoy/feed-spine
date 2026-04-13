@@ -59,3 +59,27 @@ def get_logger(name: str | None = None) -> Any:
         return structlog.get_logger(name)
     except ImportError:
         return _StdlibAdapter(logging.getLogger(name))
+
+
+class LogScope:
+    """No-op logging-scope context manager (sync + async).
+
+    When spine-core is installed this is replaced by the real
+    ``spine.core.logging.LogScope`` which binds structured context
+    (run_id, feed_name, etc.) to the logger for the block duration.
+    """
+
+    def __init__(self, **kwargs: Any) -> None:
+        self._context = kwargs
+
+    def __enter__(self) -> LogScope:
+        return self
+
+    def __exit__(self, *args: Any) -> None:
+        pass
+
+    async def __aenter__(self) -> LogScope:
+        return self
+
+    async def __aexit__(self, *args: Any) -> None:
+        pass
