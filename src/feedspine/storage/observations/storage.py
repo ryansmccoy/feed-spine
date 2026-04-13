@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import re
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.storage.observations.converter import ObservationConverterMixin
 from feedspine.storage.observations.core_operations import CoreOperationsMixin

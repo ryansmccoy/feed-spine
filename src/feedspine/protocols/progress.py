@@ -10,8 +10,8 @@ Example:
     ...     def report(self, event: ProgressEvent) -> None:
     ...         print(f"{event.stage}: {event.current}/{event.total}")
     ...
-    >>> spine = FeedSpine(storage=storage, progress=MyReporter())
-    >>> await spine.collect()  # Progress events emitted
+    >>> app = create_feed_spine(storage)
+    >>> # Progress events are emitted during collection runs
 """
 
 from __future__ import annotations

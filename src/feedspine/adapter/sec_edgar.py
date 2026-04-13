@@ -25,7 +25,7 @@ from datetime import UTC, datetime
 from typing import Any
 
 import httpx
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.adapter.base import BaseFeedAdapter, FeedError
 from feedspine.models.base import Metadata

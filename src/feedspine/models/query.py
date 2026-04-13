@@ -44,10 +44,11 @@ class Query:
     """Fluent query builder for storage queries.
 
     Example:
-        >>> from feedspine.models.query import Query
-        >>> q = Query().where("verified", True).limit(10)
-        >>> q.build()["filters"]["verified"]
-        True
+        ```python
+        from feedspine.models.query import Query
+        q = Query().where("status", "active").limit(10)
+        assert q.build()["filters"]["status"] == "active"
+        ```
     """
 
     __slots__ = ("_spec",)

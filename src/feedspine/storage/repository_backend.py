@@ -22,7 +22,7 @@ from collections.abc import Iterator
 from contextlib import contextmanager
 from typing import Any
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.storage.dialect import PostgreSQLDialect, SQLiteDialect
 from feedspine.storage.feed_mixins import (

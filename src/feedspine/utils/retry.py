@@ -18,7 +18,7 @@ from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
 from typing import TypeVar
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 logger = get_logger("feedspine.retry")
 

@@ -52,7 +52,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query, Request
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.api.models import ExportStatusResponse
 

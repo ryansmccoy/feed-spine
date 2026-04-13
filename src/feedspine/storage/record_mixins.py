@@ -10,7 +10,7 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import Any
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.models.base import Layer
 from feedspine.models.record import Record

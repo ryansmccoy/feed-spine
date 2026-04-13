@@ -13,6 +13,7 @@ from starlette.responses import JSONResponse
 
 if TYPE_CHECKING:
     from starlette.requests import Request
+    from starlette.types import ASGIApp
     from starlette.responses import Response
 
 
@@ -49,7 +50,7 @@ class APIKeyMiddleware(BaseHTTPMiddleware):
 
     def __init__(
         self,
-        app,
+        app: ASGIApp,
         api_key: str | None = None,
         required: bool = False,
     ) -> None:

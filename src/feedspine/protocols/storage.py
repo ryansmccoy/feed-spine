@@ -62,9 +62,9 @@ class RecordStore(Protocol):
 
     Used by:
         - Pipeline (store, get_by_natural_key, store_batch)
-        - FeedSpine (query, count)
+        - FeedSpineApp (query, count)
         - API routes (get, get_by_natural_key, query, count)
-        - Feed composition (store, query)
+        - FeedCollectionService (store, query via pipeline)
     """
 
     # --- Record CRUD ---

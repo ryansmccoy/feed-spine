@@ -10,7 +10,7 @@ from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Query, Request
 from pydantic import BaseModel, Field
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.models.sighting import Sighting
 

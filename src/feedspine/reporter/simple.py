@@ -23,7 +23,7 @@ from datetime import UTC, datetime
 from logging import INFO, Logger
 from typing import Any
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.protocols.progress import (
     ProgressEvent,

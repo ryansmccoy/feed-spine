@@ -7,7 +7,7 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import TYPE_CHECKING, Any
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 if TYPE_CHECKING:
     from sqlalchemy.engine import Connection

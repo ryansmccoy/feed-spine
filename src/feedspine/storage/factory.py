@@ -123,26 +123,17 @@ class StorageOptions:
     Works across all backends with sensible defaults.
 
     Attributes:
-        # Connection
-        pool_size: Connection pool size (0 = no pooling)
-        max_overflow: Extra connections beyond pool_size
-        connect_timeout: Connection timeout in seconds
-
-        # Performance
-        batch_size: Records per batch insert
-        page_size: Default pagination size
-
-        # Features
-        auto_migrate: Auto-create/update schema
-        use_timescale: Enable TimescaleDB features
-        enable_versioning: Track record versions
-
-        # Data directory
-        data_dir: Base directory for file-based storage
-
-        # Logging
-        echo_sql: Log SQL statements
-        log_slow_queries_ms: Log queries slower than this
+        pool_size: Connection pool size (0 = no pooling).
+        max_overflow: Extra connections beyond pool_size.
+        connect_timeout: Connection timeout in seconds.
+        batch_size: Records per batch insert.
+        page_size: Default pagination size.
+        auto_migrate: Auto-create/update schema.
+        use_timescale: Enable TimescaleDB features.
+        enable_versioning: Track record versions.
+        data_dir: Base directory for file-based storage.
+        echo_sql: Log SQL statements.
+        log_slow_queries_ms: Log queries slower than this.
     """
 
     # Connection

@@ -12,7 +12,7 @@ from typing import Any
 from uuid import uuid4
 
 from fastapi import APIRouter, HTTPException, Query, Request
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.api.models import RecordCreate, RecordResponse, RecordUpdate, RecordVersionsResponse
 from feedspine.models.base import Layer, Metadata

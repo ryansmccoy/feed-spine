@@ -11,7 +11,7 @@ from collections.abc import AsyncIterator
 from datetime import UTC, datetime
 from typing import Any
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 from feedspine.adapter.rate_limiter import AdapterRateLimiter
 from feedspine.core.exceptions import FeedError, FeedSpineError  # noqa: F401

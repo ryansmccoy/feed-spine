@@ -26,7 +26,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 logger = get_logger(__name__)
 

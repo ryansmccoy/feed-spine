@@ -15,7 +15,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from typing import Any, TypeVar
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 
 logger = get_logger(__name__)
 

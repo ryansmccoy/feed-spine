@@ -20,7 +20,7 @@ from contextlib import asynccontextmanager
 from dataclasses import asdict
 from typing import Any
 
-from spine.core.logging import get_logger
+from feedspine._vendor.logging import get_logger
 from spine_mcp import (
     Context,
     ErrorCode,
