@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Test Feed</title>
+    <link>https://example.com</link>
+    <description>A sample RSS feed for testing feedspine RSS adapter.</description>
+    <language>en-us</language>
+    <lastBuildDate>Thu, 26 Feb 2026 12:00:00 GMT</lastBuildDate>
+    <item>
+      <title>First Test Item</title>
+      <link>https://example.com/items/001</link>
+      <description>Description of the first test item.</description>
+      <pubDate>Thu, 26 Feb 2026 10:00:00 GMT</pubDate>
+      <guid isPermaLink="true">https://example.com/items/001</guid>
+    </item>
+    <item>
+      <title>Second Test Item</title>
+      <link>https://example.com/items/002</link>
+      <description>Description of the second test item.</description>
+      <pubDate>Wed, 25 Feb 2026 08:00:00 GMT</pubDate>
+      <guid isPermaLink="true">https://example.com/items/002</guid>
+    </item>
+    <item>
+      <title>Third Test Item</title>
+      <link>https://example.com/items/003</link>
+      <description>Description of the third test item with &amp; special chars.</description>
+      <pubDate>Tue, 24 Feb 2026 06:00:00 GMT</pubDate>
+      <guid isPermaLink="true">https://example.com/items/003</guid>
+    </item>
+  </channel>
+</rss>

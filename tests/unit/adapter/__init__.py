@@ -1,0 +1,1 @@
+"""Feed adapter tests."""

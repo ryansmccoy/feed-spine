@@ -1,0 +1,27 @@
+{
+  "pipeline_run": {
+    "run_id": "run-2026-02-26-001",
+    "started_at": "2026-02-26T10:00:00Z",
+    "completed_at": "2026-02-26T10:00:05Z",
+    "status": "completed"
+  },
+  "feeds_processed": [
+    {
+      "feed_name": "test-rss",
+      "adapter_type": "rss",
+      "items_fetched": 3,
+      "items_new": 2,
+      "items_duplicate": 1,
+      "items_updated": 0,
+      "duration_seconds": 1.2
+    }
+  ],
+  "summary": {
+    "total_feeds": 1,
+    "total_fetched": 3,
+    "total_new": 2,
+    "total_duplicate": 1,
+    "total_updated": 0,
+    "total_errors": 0
+  }
+}

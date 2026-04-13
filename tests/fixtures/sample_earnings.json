@@ -1,0 +1,36 @@
+{
+  "earnings": [
+    {
+      "ticker": "AAPL",
+      "company_name": "Apple Inc.",
+      "report_date": "2026-01-30",
+      "report_time": "amc",
+      "fiscal_year": 2026,
+      "fiscal_quarter": 1,
+      "fiscal_period": "Q1",
+      "eps_estimate": 2.35,
+      "eps_actual": 2.42,
+      "revenue_estimate": 119000000000,
+      "revenue_actual": 121000000000,
+      "is_released": true,
+      "source_vendor": "polygon",
+      "source_feed": "reference/earnings"
+    },
+    {
+      "ticker": "MSFT",
+      "company_name": "Microsoft Corporation",
+      "report_date": "2026-01-30",
+      "report_time": "amc",
+      "fiscal_year": 2026,
+      "fiscal_quarter": 2,
+      "fiscal_period": "Q2",
+      "eps_estimate": 2.80,
+      "eps_actual": 2.50,
+      "revenue_estimate": 65000000000,
+      "revenue_actual": 63000000000,
+      "is_released": true,
+      "source_vendor": "polygon",
+      "source_feed": "reference/earnings"
+    }
+  ]
+}

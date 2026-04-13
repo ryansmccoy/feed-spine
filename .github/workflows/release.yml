@@ -1,0 +1,52 @@
+name: Release to PyPI
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release (e.g., 0.1.0)'
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    environment: pypi
+    permissions:
+      id-token: write
+      contents: write
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - uses: astral-sh/setup-uv@v4
+      
+      - name: Verify version matches
+        run: |
+          PYPROJECT_VERSION=$(grep -Po '(?<=^version = ")[^"]*' pyproject.toml)
+          if [ "$PYPROJECT_VERSION" != "${{ inputs.version }}" ]; then
+            echo "Version mismatch: pyproject.toml has $PYPROJECT_VERSION, but release is for ${{ inputs.version }}"
+            exit 1
+          fi
+      
+      - name: Run tests
+        run: |
+          uv sync --dev
+          uv run pytest
+      
+      - name: Build package
+        run: uv build
+      
+      - name: Publish to PyPI
+        env:
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
+        run: uv publish
+      
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: v${{ inputs.version }}
+          name: Release v${{ inputs.version }}
+          draft: false
+          prerelease: false
+          files: dist/*

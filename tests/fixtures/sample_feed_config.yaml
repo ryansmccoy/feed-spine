@@ -1,0 +1,24 @@
+# Sample feed configuration for testing
+# Matches the feedspine YAML config format
+
+storage:
+  type: sqlite
+  connection: ":memory:"
+
+feeds:
+  - name: test-rss
+    type: rss
+    url: https://example.com/feed.xml
+    requests_per_second: 1.0
+    max_items: 50
+    schedule: "0 */6 * * *"
+
+  - name: test-json-api
+    type: json
+    url: https://api.example.com/v1/data
+    headers:
+      Authorization: "Bearer ${API_KEY}"
+    items_path: results
+    timeout: 30
+    max_items: 100
+    schedule: "0 * * * *"

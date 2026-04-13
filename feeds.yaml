@@ -1,0 +1,29 @@
+# FeedSpine feed configuration
+# See: feedspine feeds list-types for available adapter types
+
+# Storage backend (optional — can also use --connection or FEEDSPINE_DATABASE_URL)
+# storage:
+#   type: sqlite
+#   connection: feeds.db
+
+# Feed definitions
+feeds:
+  # RSS feed example
+  # - name: sec-10k-filings
+  #   type: rss
+  #   url: https://www.sec.gov/cgi-bin/browse-edgar?action=getcompany&type=10-K&output=atom
+  #   requests_per_second: 0.5
+
+  # JSON API example
+  # - name: polygon-earnings
+  #   type: json
+  #   url: https://api.polygon.io/v2/reference/financials
+  #   headers:
+  #     Authorization: "Bearer ${POLYGON_API_KEY}"
+  #   items_path: results
+  #   timeout: 60
+
+  # SEC EDGAR filings adapter
+  # - name: edgar-filings
+  #   type: sec_edgar
+  #   source_url: https://www.sec.gov/cgi-bin/browse-edgar

@@ -1,0 +1,20 @@
+{
+  "filings": [
+    {
+      "accession_number": "0000320193-24-000081",
+      "cik": "0000320193",
+      "company_name": "Apple Inc.",
+      "ticker": "AAPL",
+      "form_type": "10-K",
+      "filing_date": "2024-02-02"
+    },
+    {
+      "accession_number": "0000789019-24-000015",
+      "cik": "0000789019",
+      "company_name": "Microsoft Corporation",
+      "ticker": "MSFT",
+      "form_type": "10-Q",
+      "filing_date": "2024-01-25"
+    }
+  ]
+}

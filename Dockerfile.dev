@@ -1,0 +1,38 @@
+# Dockerfile.dev
+# Development Dockerfile with hot-reload support
+# Code is mounted from host, not copied into image
+
+FROM python:3.12-slim
+
+ENV PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    PIP_NO_CACHE_DIR=1 \
+    PIP_DISABLE_PIP_VERSION_CHECK=1
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    curl \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install uv for fast dependency management
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /usr/local/bin/uv
+# Copy dependency files
+COPY pyproject.toml ./
+COPY uv.lock* ./
+COPY README.md ./
+
+# Install all dependencies with dev extras
+RUN uv sync --frozen 2>/dev/null || uv sync
+
+# Create directories
+RUN mkdir -p /app/data
+
+# Add venv to PATH
+ENV PATH="/app/.venv/bin:$PATH"
+
+# Default command (overridden in docker-compose)
+CMD ["python", "-c", "print('Use docker-compose to run services')"]

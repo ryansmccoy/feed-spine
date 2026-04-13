@@ -1,0 +1,76 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+dist/
+*.egg-info/
+*.egg
+.eggs/
+
+# Virtual environments
+.venv/
+venv/
+ENV/
+
+# uv
+.uv/
+uv.lock
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.mypy_cache/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+*.db
+*.duckdb
+*.parquet
+data/
+logs/
+
+# Local examples (not committed)
+examples_local/
+
+# Generated documentation
+site/
+
+# Linting
+.ruff_cache/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Frontend
+node_modules/
+
+# SQLite
+*.sqlite
+
+# Development/Session files (not for release)
+archive/
+docs/sessions/
+prompts/
+*.backup
+run_filter_repo.py
+
+# Demo databases (local development only)
+health_demo.db
+stats_demo.db
+checkpoints/
+
