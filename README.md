@@ -27,7 +27,23 @@ updated: 2026-04-12
 
 ## What Is FeedSpine?
 
-FeedSpine is a Python framework for collecting structured data from feeds — RSS, JSON APIs, CSV files, SEC EDGAR, financial data providers — and storing it with **automatic deduplication**, **version tracking**, and **quality-layer promotion**.
+FeedSpine was built to solve a real problem: [py-sec-edgar](https://github.com/ryansmccoy/py-sec-edgar) needs to collect SEC filings from **four different feeds** — a real-time RSS feed, daily index files, monthly XBRL archives, and quarterly bulk indexes — each with a completely different format, but all representing the same filings identified by accession number.
+
+Rather than writing bespoke dedup logic for each feed, FeedSpine provides a **unified collection framework** where every adapter yields `RecordCandidate` objects with a `natural_key`. The pipeline handles dedup, versioning, and sighting history automatically — regardless of whether the data came from RSS, a JSON API, a CSV file, or a custom SEC parser.
+
+```python
+# py-sec-edgar registers 4 different SEC feed formats into one FeedSpine app
+# Each feed has a different format, but all deduplicate on accession number
+app.register_feed(SecRssFeedAdapter(form_types=["10-K", "10-Q"]))       # Real-time Atom/RSS
+app.register_feed(SecDailyIndexAdapter(start_date=date(2024, 1, 1)))    # Pipe-delimited index
+app.register_feed(SecMonthlyXBRLAdapter(months_back=3))                 # XML/XBRL archive
+app.register_feed(SecQuarterlyIndexAdapter(year=2024, quarter=1))       # Bulk CSV index
+
+# Collect from all feeds — duplicates across feeds are detected automatically
+for feed in app.feeds:
+    outcome = await app.collection_service.run_collection(feed)
+    # Same filing from RSS + daily index + monthly XBRL = 1 record, 3 sightings
+```
 
 Every record is identified by a normalized natural key and a SHA-256 content hash. Collect the same feed a thousand times — each item is stored exactly once, with a full sighting history of when and where it was seen.
 
@@ -35,7 +51,8 @@ Every record is identified by a normalized natural key and a SHA-256 content has
 
 | Use case | FeedSpine? |
 |----------|:----------:|
-| Collect from RSS / JSON / CSV / file feeds with automatic dedup | ✅ |
+| Collect from multiple feeds with different formats into one unified store | ✅ |
+| Automatic cross-feed deduplication via natural keys | ✅ |
 | Promote records through quality layers (Bronze → Silver → Gold) | ✅ |
 | Track sighting history — "when did each source last see this item?" | ✅ |
 | Swap storage (Memory ↔ SQLite ↔ DuckDB ↔ Postgres) without code changes | ✅ |
